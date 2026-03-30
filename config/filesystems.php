@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Storage Driver
+    |--------------------------------------------------------------------------
+    |
+    | This option controls which storage adapter will be used by the
+    | application. This can be switched between 'local' and 's3'.
+    |
+    */
+
+    'storage_driver' => env('STORAGE_DRIVER', 'local'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |
