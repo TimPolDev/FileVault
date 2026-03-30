@@ -47,8 +47,11 @@ final class File
             new DateTimeImmutable()
         );
 
-        // Record domain event - will be implemented in COMMIT 05
-        // $file->recordEvent(new FileUploaded($file->id, $file->name, $file->uploadedAt));
+        $file->recordEvent(new \FileVault\Domain\File\Event\FileUploaded(
+            $file->id,
+            $file->name,
+            $file->uploadedAt
+        ));
 
         return $file;
     }
@@ -82,8 +85,11 @@ final class File
     {
         $this->versions[] = $version;
 
-        // Record domain event - will be implemented in COMMIT 05
-        // $this->recordEvent(new NewVersionCreated($this->id, $version->versionNumber(), new DateTimeImmutable()));
+        $this->recordEvent(new \FileVault\Domain\File\Event\NewVersionCreated(
+            $this->id,
+            $version->versionNumber(),
+            new DateTimeImmutable()
+        ));
     }
 
     public function getLatestVersion(): ?FileVersion

@@ -151,7 +151,7 @@ final class FileTest extends TestCase
         $this->assertEquals(3, $latestVersion->versionNumber());
     }
 
-    public function test_release_events_returns_empty_array_initially(): void
+    public function test_records_file_uploaded_event_on_upload(): void
     {
         $file = File::upload(
             FileName::create('document.pdf'),
@@ -163,8 +163,8 @@ final class FileTest extends TestCase
 
         $events = $file->releaseEvents();
 
-        $this->assertIsArray($events);
-        // Domain events will be tested in COMMIT 05
+        $this->assertCount(1, $events);
+        $this->assertInstanceOf(\FileVault\Domain\File\Event\FileUploaded::class, $events[0]);
     }
 
     public function test_release_events_clears_internal_events(): void
@@ -199,5 +199,34 @@ final class FileTest extends TestCase
         $this->assertInstanceOf(MimeType::class, $file->mimeType());
         $this->assertInstanceOf(StoragePath::class, $file->storagePath());
         $this->assertInstanceOf(FileHash::class, $file->hash());
+    }
+
+    public function test_records_new_version_created_event_when_adding_version(): void
+    {
+        $file = File::upload(
+            FileName::create('document.pdf'),
+            FileSize::create(1024),
+            MimeType::create('application/pdf'),
+            StoragePath::create('2024/03/abc123.bin'),
+            FileHash::create(str_repeat('a', 64))
+        );
+
+        // Clear upload event
+        $file->releaseEvents();
+
+        $version = FileVersion::create(
+            1,
+            StoragePath::create('2024/03/v1.bin'),
+            FileHash::create(str_repeat('b', 64)),
+            FileSize::create(2048)
+        );
+
+        $file->addVersion($version);
+
+        $events = $file->releaseEvents();
+
+        $this->assertCount(1, $events);
+        $this->assertInstanceOf(\FileVault\Domain\File\Event\NewVersionCreated::class, $events[0]);
+        $this->assertEquals(1, $events[0]->versionNumber());
     }
 }
